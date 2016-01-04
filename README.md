@@ -2,6 +2,9 @@ Image-Importer
 --------
 A simple application to select and import images from a USB-Device.
 
+This project was made using the [Electron runtime](http://electron.atom.io).  
+[Szwacz's electron-boilerplate](https://github.com/szwacz/electron-boilerplate) was used as a foundation for this project.
+
 ### How to use
 When first starting the application, nothing will be happening, because a valid USB-Device must be set in the settings. 
 
