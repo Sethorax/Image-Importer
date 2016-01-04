@@ -1,0 +1,127 @@
+<!doctype html>
+<html ng-app="camImporter">
+<head>
+    <meta charset="utf-8">
+    <title>Image-Importer</title>
+
+    <link href="stylesheets/css/main.min.css" rel="stylesheet" type="text/css">
+    <script src="node_modules/angular/angular.min.js"></script>
+    <script>window.$ = window.jQuery = require('jquery');</script>
+    <script src="vendor/electron_boilerplate/context_menu.js"></script>
+    <script src="vendor/electron_boilerplate/external_links.js"></script>
+
+    <script src="app.js"></script>
+</head>
+
+<body>
+    <div id="menubar" ng-controller="MenuCtrl">
+        <div class="left menu-buttons">
+            <span id="btnClose" class="glyphicon glyphicon-remove-sign menu-button" aria-hidden="true"></span>
+            <span id="btnMinimize" class="glyphicon glyphicon-minus-sign menu-button" aria-hidden="true"></span>
+            <span id="btnMaximize" class="glyphicon glyphicon-plus-sign menu-button" aria-hidden="true"></span>
+        </div>
+        <div class="middle">
+            <span class="app-title">Image-Importer</span>
+        </div>
+        <div class="right menu-buttons">
+            <span id="btnSettings" class="glyphicon glyphicon-cog menu-button" ng-click="toggleSettings()" aria-hidden="true"></span>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="image-list" ng-controller="ImageListCtrl">
+            <div class="content">
+                <div class="image" ng-repeat="image in images track by $index">
+                    <div class="image-wrap" ng-class="{'selected': image.isSelected, 'not-selected': !image.isSelected, 'should-delete': image.shouldDelete}">
+                        <img class="thumbnail" ng-class="{'loaded': image.isLoaded, 'loading': !image.isLoaded, 'selected': image.isSelected, 'not-selected': !image.isSelected, 'should-delete': image.shouldDelete}" ng-click="selectItem($index)" ng-right-click="selectForDeletion($index)" ng-src="{{image.src}}" />
+                        <div class="ov-limiter">
+                            <div class="selected-sign ok">
+                                <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                            </div>
+                            <div class="selected-sign delete">
+                                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                            </div>
+                            <div class="background"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="settings" ng-controller="SettingsCtrl" ng-show="visible">
+            <div class="settings-content">
+                <h2>Einstellungen</h2>
+                <div class="panel panel-default">
+                    <div class="panel-heading"><b>Gerät</b></div>
+                    <div class="panel-body">
+                        <div class="input-group">
+                            <span class="input-group-addon">Vendor-ID</span>
+                            <input type="text" id="settingVid" ng-blur="save()" ng-model="settings.vid" class="form-control" />
+                        </div>
+                        <div class="input-group">
+                            <span class="input-group-addon">Product-ID</span>
+                            <input type="text" id="settingPid" ng-blur="save()" ng-model="settings.pid" class="form-control" />
+                        </div>
+                        <div class="input-group">
+                            <span class="input-group-addon">Gerätname</span>
+                            <input type="text" id="settingDeviceName" ng-blur="save()" ng-model="settings.deviceName" class="form-control" />
+                        </div>
+                        <div class="input-group">
+                            <span class="input-group-addon">Laufwerksbuchstabe</span>
+                            <input type="text" id="settingDriveLetter" ng-blur="save()" ng-model="settings.driveLetter" class="form-control" />
+                        </div>
+                        <div class="input-group">
+                            <span class="input-group-addon">Partitionsname</span>
+                            <input type="text" id="settingPartitionName" ng-blur="save()" ng-model="settings.partName" class="form-control" />
+                        </div>
+
+                        <div class="input-group extra">
+                            <span class="input-group-addon"><b>Gerät importieren</b></span>
+                            <select id="settingDeviceList" ng-model="selectedDevice" ng-change="loadDeviceInformation()" class="form-control">
+                                <option ng-repeat="device in devices" value="{{device.locationId}}">{{fullName(device)}}</option>
+                            </select>
+                            <span class="input-group-btn">
+                                <button class="btn btn-default" ng-click="refreshDevices()" type="button">
+                                    <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading"><b>Import</b></div>
+                    <div class="panel-body">
+                        <div class="input-group">
+                            <span class="input-group-addon">Zielverzeichnis</span>
+                            <input type="text" id="settingDestination" ng-blur="save()" ng-model="settings.destPath" class="form-control" />
+                            <span class="input-group-btn">
+                                <button class="btn btn-default" ng-click="openDialog()" type="button">Auswählen</button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="controlbar">
+        <div class="left"></div>
+        <div class="middle" ng-controller="StatusCtrl">
+            <div id="status" ng-class="{'warning': type == 'warning', 'error': type == 'error'}">
+                <div class="progressbar" ng-style="progress"></div>
+                <div class="context">
+                    <span class="glyphicon glyphicon-info-sign sign-warning" aria-hidden="true"></span>
+                    <span class="glyphicon glyphicon-remove-sign sign-error" aria-hidden="true"></span>
+                    <span class="message">{{message}}</span>
+                </div>
+            </div>
+        </div>
+        <div class="right" ng-controller="ImportCtrl">
+            <button id="refreshImageList" type="button" class="btn btn-default" ng-class="canrefresh ? 'enabled' : 'disabled'" ng-click="refresh()">
+                <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>
+            </button>
+            <button id="loadImages" type="button" class="btn btn-primary" ng-class="canimport ? 'enabled' : 'disabled'" ng-click="import()">{{btntext}}</button>
+        </div>
+    </div>
+
+</body>
+</html>

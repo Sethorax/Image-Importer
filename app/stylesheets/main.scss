@@ -1,0 +1,464 @@
+@import '../bower_components/bootstrap-sass/assets/stylesheets/bootstrap';
+
+$mbHeight: 52px;
+$colPrimary: #337ab7;
+$colDeletion: #cc0000;
+$colWarning: #8a6d3b;
+$colError: #a94442;
+$settingsMinWidth: 160px;
+
+@font-face {
+    font-family: 'BS-Glyph';
+    src: url('../fonts/bootstrap/glyphicons-halflings-regular.woff2');
+}
+
+html
+{
+    height: 100%;
+}
+
+body
+{
+    overflow: hidden;
+
+    width: 100%;
+    height: 100%;
+
+    .main-content
+    {
+
+        -webkit-user-select: none;
+                user-select: none;
+        overflow-x: hidden;
+        overflow-y: scroll;
+
+        width: 100%;
+        height: calc(100% - #{$mbHeight} * 2);
+        padding: 20px;
+
+        .content
+        {
+            display: flex;
+
+            flex-wrap: wrap;
+            justify-content: space-around;
+
+            .image
+            {
+                display: flex;
+
+                width: 100%;
+                min-width: 200px;
+                max-width: 200px;
+                height: 200px;
+                max-height: 200px;
+                margin: 10px;
+
+                flex-basis: auto;
+                flex-grow: 1;
+                justify-content: center;
+                align-items: center;
+
+                img
+                {
+                    width: 100%;
+                    margin: 0;
+
+                    transition: all .3s ease;
+
+                    border-radius: 0;
+                }
+
+                img.loaded
+                {
+                    cursor: pointer;
+                }
+
+                img.selected
+                {
+                    background-color: $colPrimary;
+                }
+
+                img.selected.should-delete
+                {
+                    background-color: $colDeletion;
+                }
+
+                .image-wrap
+                {
+                    position: relative;
+
+                    width: 100%;
+
+                    &.selected
+                    {
+                        .ov-limiter
+                        {
+                            opacity: 1;
+                        }
+                    }
+
+                    &.selected:not(.should-delete) {
+                        .ov-limiter {
+                            .background {
+                                background-color: $colPrimary;
+                            }
+                        }
+
+                        .selected-sign.ok {
+                            display: inline;
+                        }
+                    }
+
+                    &.selected.should-delete {
+                        .ov-limiter {
+                            .background {
+                                background-color: $colDeletion;
+                            }
+                        }
+
+                        .selected-sign.delete {
+                            display: inline;
+                        }
+                    }
+
+                    .ov-limiter
+                    {
+                        position: absolute;
+                        top: 0;
+                        right: 0;
+
+                        overflow: hidden;
+
+                        width: 40px;
+                        height: 40px;
+                        margin: 1px;
+
+                        transition: all .3s ease;
+
+                        opacity: 0;
+
+                        .background
+                        {
+                            position: absolute;
+                            top: -22px;
+                            right: -22px;
+
+                            width: 50px;
+                            height: 50px;
+
+                            transform: rotate(45deg);
+
+                            background-color: transparent;
+                        }
+                    }
+
+                    .selected-sign
+                    {
+                        font-size: 12px;
+
+                        position: absolute;
+                        z-index: 2;
+                        top: 4px;
+                        right: 7px;
+                        display: none;
+
+                        color: #fff;
+                    }
+                }
+            }
+        }
+
+        .settings
+        {
+            position: fixed;
+            top: $mbHeight;
+            left: 0;
+
+            display: flex;
+
+            width: 100%;
+            height: calc(100% - #{$mbHeight} * 2);
+
+            transition: opacity .3s ease;
+
+            padding: 20px;
+            opacity: 1;
+            background-color: darken(white, 5%);
+
+            justify-content: center;
+            align-items: flex-start;
+
+            .settings-container {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .panel {
+                max-width: 800px;
+            }
+
+            h2 {
+                margin-top: 15px;
+                margin-bottom: 30px;
+                text-align: center;
+            }
+
+            .input-group {
+                margin-bottom: 5px;
+
+                &:last-child {
+                    margin-bottom: 0;
+                }
+
+                &.extra {
+                    margin-top: 25px;
+                }
+
+                .input-group-addon {
+                    min-width: $settingsMinWidth;
+                    text-align: left;
+                }
+
+                .input-group-btn {
+                    .btn {
+                        padding: 7px 12px 6px 12px;
+                    }
+                }
+
+                select {
+                    -webkit-appearance: none;
+                     -moz-appearance: none;
+                     background-position: right 50%;
+                     background-repeat: no-repeat;
+                     background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAMCAYAAABSgIzaAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNSBNYWNpbnRvc2giIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6NDZFNDEwNjlGNzFEMTFFMkJEQ0VDRTM1N0RCMzMyMkIiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6NDZFNDEwNkFGNzFEMTFFMkJEQ0VDRTM1N0RCMzMyMkIiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo0NkU0MTA2N0Y3MUQxMUUyQkRDRUNFMzU3REIzMzIyQiIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo0NkU0MTA2OEY3MUQxMUUyQkRDRUNFMzU3REIzMzIyQiIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PuGsgwQAAAA5SURBVHjaYvz//z8DOYCJgUxAf42MQIzTk0D/M+KzkRGPoQSdykiKJrBGpOhgJFYTWNEIiEeAAAMAzNENEOH+do8AAAAASUVORK5CYII=);
+                     padding: .5em;
+                     padding-right: 1.5em
+                }
+            }
+        }
+
+        .settings.ng-hide
+        {
+            opacity: 0;
+        }
+    }
+
+    .controlbar
+    {
+        position: fixed;
+        bottom: 0;
+
+        display: flex;
+
+        width: 100%;
+        min-height: $mbHeight;
+        padding: 10px 20px;
+
+        -webkit-user-select: none;
+                user-select: none;
+
+        border-top: 1px solid rgba(black, .3);
+        background-color: #e5e5e5;
+
+        -webkit-touch-callout: none;
+        align-items: center;
+
+        > div
+        {
+            flex-grow: 1;
+            flex-basis: 0;
+        }
+
+        .middle
+        {
+            text-align: center;
+
+            flex-grow: 2;
+        }
+
+        .right
+        {
+            display: flex;
+
+            justify-content: flex-end;
+        }
+
+        #status
+        {
+            position: relative;
+            position: relative;
+
+            overflow: hidden;
+
+            padding: 5px 10px;
+
+            border-radius: 4px;
+            background-color: white;
+            box-shadow: 0 0 5px 0 rgba(0,0,0,.15);
+
+            .progressbar
+            {
+                position: absolute;
+                bottom: 0;
+                left: 0;
+
+                width: 0;
+                height: 3px;
+
+                transition: all .5s ease;
+
+                background-color: #49d03f;
+            }
+
+            .glyphicon
+            {
+                position: absolute;
+                top: 50%;
+                left: 10px;
+
+                transition: opacity .25s ease;
+                transform: translateY(-50%);
+
+                opacity: 0;
+            }
+
+            .sign-warning
+            {
+                color: $colWarning;
+            }
+
+            .sign-error
+            {
+                color: $colError;
+            }
+        }
+
+        #status.warning
+        {
+            color: $colWarning;
+            background-color: #fcf8e3;
+
+            .sign-warning
+            {
+                opacity: 1;
+            }
+        }
+
+        #status.error
+        {
+            color: $colError;
+            background-color: #f2dede;
+
+            .sign-error
+            {
+                opacity: 1;
+            }
+        }
+
+        #loadImages
+        {
+            padding-top: 4px;
+            padding-bottom: 4px;
+        }
+
+        #refreshImageList
+        {
+            display: flex;
+
+            margin-right: 5px;
+
+            justify-content: center;
+            align-items: center;
+
+            .glyphicon
+            {
+                margin-top: -1px;
+            }
+        }
+    }
+
+    #menubar
+    {
+        position: relative;
+
+        cursor: default;
+
+        border-bottom: 1px solid rgba(0,0,0,.2);
+        background-color: #f9f9f9;
+
+        @extend .controlbar;
+        -webkit-app-region: drag;
+        justify-content: initial;
+        align-items: center;
+
+        > div
+        {
+            flex-grow: 1;
+            flex-basis: 0;
+        }
+
+        .middle
+        {
+            text-align: center;
+
+            flex-grow: 2;
+        }
+
+        .menu-buttons
+        {
+            font-size: 15px;
+
+            display: flex;
+        }
+
+        .menu-buttons.right
+        {
+            justify-content: flex-end;
+        }
+
+        .menu-button
+        {
+            margin-right: 5px;
+
+            cursor: pointer;
+            /*transition: color .3s ease;*/
+
+            opacity: .25;
+
+            -webkit-app-region: no-drag;
+        }
+        .menu-button:hover
+        {
+            opacity: 1;
+        }
+
+        #btnSettings
+        {
+            font-size: 15px;
+        }
+
+        #btnClose:hover
+        {
+            color: #f7615c;
+        }
+        #btnMinimize:hover
+        {
+            color: #fac132;
+        }
+        #btnMaximize:hover
+        {
+            color: #49d03f;
+        }
+    }
+}
+
+*:focus
+{
+    outline: none!important;
+}
+
+.glyphicon {
+    font-family: 'BS-Glyph'!important;
+}
